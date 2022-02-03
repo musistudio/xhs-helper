@@ -1,0 +1,16 @@
+<view class="container">
+    <view class="form">
+      <input type="text" placeholder="请输入小红书链接" bindinput="changeLink"/>
+      <button bindtap="getImgList" type="primary">获取图片</button>
+    </view>
+    <scroll-view wx:if="{{noteData && noteData.noteData}}" class="scroll-view_H" scroll-x="true" bindscroll="scroll" style="width: 100%">
+      <image wx:for="{{noteData.noteData.imageList}}" src="{{item.url}}" wx:key="index" mode="widthFix" bindlongtap="showActionList" data-img="{{item.url}}"></image>
+    </scroll-view>
+    <view class="shareUserInfo" wx:if="{{noteData.shareUserInfo}}">
+      <image src="{{noteData.shareUserInfo.image}}"></image>
+      <view class="info">
+        <view class="nick">来自{{noteData.shareUserInfo.nickname}}的分享</view>
+        <view class="desc">“{{noteData.shareUserInfo.desc}}”</view>
+      </view>
+    </view>
+</view>
