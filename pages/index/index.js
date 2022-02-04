@@ -8,28 +8,82 @@ Page({
       link: e.detail.value
     })
   },
+  clear() {
+    this.setData({
+      link: '',
+      noteData: null
+    })
+  },
+  async saveImg(imgPath) {
+    const userSetting = await wx.getSetting();
+    if(!userSetting.authSetting['scope.writePhotosAlbum']) {
+      try {
+        await wx.authorize({ scope: 'scope.writePhotosAlbum' })
+        try {
+          await wx.saveImageToPhotosAlbum({ filePath: imgPath })
+          await wx.showToast({
+            title: '保存成功',
+            icon: 'success'
+          })
+        } catch(err) {
+          await wx.showToast({
+            title: '保存失败',
+            icon: 'error'
+          })
+        }
+      }catch {
+        await wx.showModal({
+          title: '提示',
+          content: '请打开添加到相册权限',
+          showCancel: false,
+          success: async() => {
+            const res = await wx.openSetting();
+            if(!res.authSetting['scope.writePhotosAlbum']) {
+              return wx.showToast({
+                title: '已拒绝权限',
+                icon: 'error'
+              })
+            }
+            try {
+              await wx.saveImageToPhotosAlbum({ filePath: imgPath })
+              await wx.showToast({
+                title: '保存成功',
+                icon: 'success'
+              })
+            } catch(err) {
+              await wx.showToast({
+                title: '保存失败',
+                icon: 'error'
+              })
+            }
+          }
+        })
+      }
+    }else{
+      try {
+        await wx.saveImageToPhotosAlbum({ filePath: imgPath })
+        await wx.showToast({
+          title: '保存成功',
+          icon: 'success'
+        })
+      } catch(err) {
+        await wx.showToast({
+          title: '保存失败',
+          icon: 'error'
+        })
+      }
+    }
+  },
   showActionList(e) {
-    console.log(e)
     wx.showActionSheet({
       itemList: ['保存到本地相册'],
-      success (res) {
+      success: () => {
         const img = e.target.dataset.img;
         // 下载图片
         wx.downloadFile({
-          url: `https://${img}`,
-          success (res) {
-            if (res.statusCode === 200) {
-              // 保存图片
-              wx.saveImageToPhotosAlbum({
-                filePath: res.tempFilePath,
-                success(res) {
-                  wx.showToast({
-                    title: '保存成功',
-                    icon: 'success'
-                  })
-                }
-              })
-            }
+          url: `https:${img}`,
+          success: async (res) => {
+            if (res.statusCode === 200) this.saveImg(res.tempFilePath)
           }
         })
       },
@@ -53,6 +107,7 @@ Page({
         })
       }
     }
+    url = url.replace('http:', 'https:')
     wx.request({
       url,
       method: 'GET',

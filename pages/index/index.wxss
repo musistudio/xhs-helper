@@ -8,7 +8,9 @@
   padding-left: 4px;
 }
 .form button{
-  width: 120px;
+  width: 80px;
+  padding-left: 0;
+  padding-right: 0;
 }
 .scroll-view_H{
   white-space: nowrap;
